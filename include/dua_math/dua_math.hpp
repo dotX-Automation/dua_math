@@ -30,7 +30,7 @@
 namespace dua_math
 {
 
-// ----- Angle-related functions -----
+// ---------- Angle-related functions ----------
 
 template<typename TypeT>
 [[nodiscard]] inline constexpr TypeT deg_to_rad(TypeT deg) noexcept
@@ -50,7 +50,7 @@ template<typename TypeT>
   return std::atan2(std::sin(angle), std::cos(angle));
 }
 
-// ----- Numeric functions -----
+// ---------- Numeric functions ----------
 
 template<typename TypeT>
 [[nodiscard]] constexpr TypeT apply_modulo(TypeT value, TypeT modulus) noexcept
@@ -71,7 +71,7 @@ template<typename TypeT>
   return alpha * current + (static_cast<TypeT>(1) - alpha) * previous;
 }
 
-// ----- Quaternion functions -----
+// ---------- Quaternion functions ----------
 
 template<typename QuaternionT>
 [[nodiscard]] inline bool is_normalized(const QuaternionT & q) noexcept
