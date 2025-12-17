@@ -26,6 +26,9 @@
 
 #include <cmath>
 #include <type_traits>
+#include <Eigen/Geometry>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <tf2/LinearMath/Quaternion.h>
 
 namespace dua_math
 {
@@ -52,7 +55,7 @@ template<typename TypeT>
 
 // ---------- Numeric functions ----------
 
-template<typename TypeT>
+template<typename TypeT, typename = std::enable_if_t<std::is_integral<TypeT>::value>>
 [[nodiscard]] constexpr TypeT apply_modulo(TypeT value, TypeT modulus) noexcept
 {
   TypeT r = value % modulus;
@@ -73,11 +76,40 @@ template<typename TypeT>
 
 // ---------- Quaternion functions ----------
 
-template<typename QuaternionT>
-[[nodiscard]] inline bool is_normalized(const QuaternionT & q) noexcept
+[[nodiscard]] inline bool is_normalized_impl(
+  double x, double y, double z, double w,
+  double eps) noexcept
 {
-  const double norm = std::sqrt(q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w);
-  return std::abs(norm - 1.0) < 1e-6;
+  const double norm_sq = x * x + y * y + z * z + w * w;
+  return std::abs(norm_sq - 1.0) < (2.0 * eps);
+}
+
+template<typename TypeT>
+[[nodiscard]] inline bool is_normalized(
+  const Eigen::Quaternion<TypeT> & q,
+  double eps = 1e-6) noexcept
+{
+  return is_normalized_impl(
+    static_cast<double>(q.x()),
+    static_cast<double>(q.y()),
+    static_cast<double>(q.z()),
+    static_cast<double>(q.w()),
+    eps
+  );
+}
+
+[[nodiscard]] inline bool is_normalized(
+  const tf2::Quaternion & q,
+  double eps = 1e-6) noexcept
+{
+  return is_normalized_impl(q.x(), q.y(), q.z(), q.w(), eps);
+}
+
+[[nodiscard]] inline bool is_normalized(
+  const geometry_msgs::msg::Quaternion & q,
+  double eps = 1e-6) noexcept
+{
+  return is_normalized_impl(q.x, q.y, q.z, q.w, eps);
 }
 
 } // namespace dua_math

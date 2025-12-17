@@ -17,14 +17,23 @@ endif()
 
 # Find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(eigen3_cmake_module REQUIRED)
+find_package(Eigen3 3.4 REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 # DUA math library
 add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} INTERFACE c_std_99 cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} INTERFACE "DUA_MATH_BUILDING_LIBRARY")
 target_include_directories(${PROJECT_NAME} INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+)
+ament_target_dependencies(${PROJECT_NAME} INTERFACE
+  geometry_msgs
+  tf2
 )
 
 # Library installation
@@ -43,5 +52,10 @@ install(
 # Export targets and dependencies
 ament_export_targets(export_${PROJECT_NAME})
 ament_export_include_directories(include)
+ament_export_dependencies(
+  eigen3_cmake_module
+  geometry_msgs
+  tf2
+)
 
 ament_package()
