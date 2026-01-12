@@ -1,5 +1,5 @@
 /**
- * DUA Math Library
+ * DUA math library
  *
  * dotX Automation <info@dotxautomation.com>
  *
@@ -71,14 +71,14 @@ template<typename TypeT>
 template<typename TypeT>
 [[nodiscard]] constexpr TypeT apply_low_pass(TypeT current, TypeT previous, TypeT alpha) noexcept
 {
-  return alpha * current + (static_cast<TypeT>(1) - alpha) * previous;
+  return (alpha * current) + ((static_cast<TypeT>(1) - alpha) * previous);
 }
 
 // ---------- Quaternion functions ----------
 
-[[nodiscard]] inline bool is_normalized_impl(
+[[nodiscard]] inline bool is_normalized(
   double x, double y, double z, double w,
-  double eps) noexcept
+  double eps = 1e-6) noexcept
 {
   const double norm_sq = x * x + y * y + z * z + w * w;
   return std::abs(norm_sq - 1.0) < (2.0 * eps);
@@ -89,7 +89,7 @@ template<typename TypeT>
   const Eigen::Quaternion<TypeT> & q,
   double eps = 1e-6) noexcept
 {
-  return is_normalized_impl(
+  return is_normalized(
     static_cast<double>(q.x()),
     static_cast<double>(q.y()),
     static_cast<double>(q.z()),
@@ -102,14 +102,14 @@ template<typename TypeT>
   const tf2::Quaternion & q,
   double eps = 1e-6) noexcept
 {
-  return is_normalized_impl(q.x(), q.y(), q.z(), q.w(), eps);
+  return is_normalized(q.x(), q.y(), q.z(), q.w(), eps);
 }
 
 [[nodiscard]] inline bool is_normalized(
   const geometry_msgs::msg::Quaternion & q,
   double eps = 1e-6) noexcept
 {
-  return is_normalized_impl(q.x, q.y, q.z, q.w, eps);
+  return is_normalized(q.x, q.y, q.z, q.w, eps);
 }
 
 } // namespace dua_math
