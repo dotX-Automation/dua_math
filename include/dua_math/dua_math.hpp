@@ -33,21 +33,24 @@
 namespace dua_math
 {
 
+template<typename TypeT>
+inline constexpr TypeT PI = static_cast<TypeT>(3.141592653589793238462643383279502884L);
+
 // ---------- Angle-related functions ----------
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline constexpr TypeT deg_to_rad(TypeT deg) noexcept
 {
-  return deg * static_cast<TypeT>(M_PI / 180.0);
+  return deg * (PI<TypeT> / static_cast<TypeT>(180));
 }
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline constexpr TypeT rad_to_deg(TypeT rad) noexcept
 {
-  return rad * static_cast<TypeT>(180.0 / M_PI);
+  return rad * (static_cast<TypeT>(180) / PI<TypeT>);
 }
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline TypeT normalize_angle(TypeT angle) noexcept
 {
   return std::atan2(std::sin(angle), std::cos(angle));
@@ -55,20 +58,20 @@ template<typename TypeT>
 
 // ---------- Numeric functions ----------
 
-template<typename TypeT, typename = std::enable_if_t<std::is_integral<TypeT>::value>>
+template<typename TypeT, std::enable_if_t<std::is_integral<TypeT>::value, int> = 0>
 [[nodiscard]] constexpr TypeT apply_modulo(TypeT value, TypeT modulus) noexcept
 {
   TypeT r = value % modulus;
   return (r < 0) ? r + modulus : r;
 }
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] constexpr TypeT apply_deadzone(TypeT value, TypeT threshold) noexcept
 {
-  return (std::abs(value) < threshold) ? static_cast<TypeT>(0) : value;
+  return (std::abs(value) <= threshold) ? static_cast<TypeT>(0) : value;
 }
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] constexpr TypeT apply_low_pass(TypeT current, TypeT previous, TypeT alpha) noexcept
 {
   return (alpha * current) + ((static_cast<TypeT>(1) - alpha) * previous);
@@ -76,26 +79,21 @@ template<typename TypeT>
 
 // ---------- Quaternion functions ----------
 
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline bool is_normalized(
-  double x, double y, double z, double w,
-  double eps = 1e-6) noexcept
+  TypeT x, TypeT y, TypeT z, TypeT w,
+  TypeT eps = static_cast<TypeT>(1e-6)) noexcept
 {
-  const double norm_sq = x * x + y * y + z * z + w * w;
-  return std::abs(norm_sq - 1.0) < (2.0 * eps);
+  const TypeT norm_sq = x * x + y * y + z * z + w * w;
+  return std::abs(norm_sq - static_cast<TypeT>(1)) < eps;
 }
 
-template<typename TypeT>
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline bool is_normalized(
   const Eigen::Quaternion<TypeT> & q,
-  double eps = 1e-6) noexcept
+  TypeT eps = static_cast<TypeT>(1e-6)) noexcept
 {
-  return is_normalized(
-    static_cast<double>(q.x()),
-    static_cast<double>(q.y()),
-    static_cast<double>(q.z()),
-    static_cast<double>(q.w()),
-    eps
-  );
+  return is_normalized(q.x(), q.y(), q.z(), q.w(), eps);
 }
 
 [[nodiscard]] inline bool is_normalized(
