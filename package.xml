@@ -3,7 +3,7 @@
 <package format="3">
   <name>dua_math</name>
   <version>1.0.0</version>
-  <description>DUA math library package.</description>
+  <description>Lightweight C++ math library for the DUA framework.</description>
   <maintainer email="info@dotxautomation.com">dotX Automation s.r.l.</maintainer>
   <license>Apache-2.0</license>
 
