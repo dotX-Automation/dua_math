@@ -41,7 +41,7 @@ inline constexpr TypeT PI = static_cast<TypeT>(3.1415926535897932384626433832795
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] inline constexpr TypeT deg_to_rad(TypeT deg) noexcept
 {
-  return deg * (PI<TypeT> / static_cast<TypeT>(180));
+  return deg * (PI<TypeT>/ static_cast<TypeT>(180));
 }
 
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
@@ -66,9 +66,30 @@ template<typename TypeT, std::enable_if_t<std::is_integral<TypeT>::value, int> =
 }
 
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
-[[nodiscard]] constexpr TypeT apply_deadzone(TypeT value, TypeT threshold) noexcept
+[[nodiscard]] constexpr TypeT apply_deadzone(TypeT value, TypeT dead) noexcept
 {
-  return (std::abs(value) <= threshold) ? static_cast<TypeT>(0) : value;
+  return (std::abs(value) <= dead) ? static_cast<TypeT>(0) : value;
+}
+
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
+[[nodiscard]] constexpr TypeT apply_clamp(TypeT value, TypeT max) noexcept
+{
+  return (std::abs(value) > max) ? std::copysign(max, value) : value;
+}
+
+template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
+[[nodiscard]] constexpr TypeT apply_deadzone_clamp(TypeT value, TypeT dead, TypeT min, TypeT max)
+{
+  const double abs_value = std::abs(value);
+  if (abs_value <= dead) {
+    return 0.0;
+  } else if (abs_value <= min) {
+    return (value > 0.0) ? min : -min;
+  } else if (abs_value >= max) {
+    return (value > 0.0) ? max : -max;
+  } else {
+    return value;
+  }
 }
 
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
