@@ -88,8 +88,8 @@ template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, 
   dead = std::abs(dead);
   lo = std::abs(lo);
   hi = std::abs(hi);
-  if (hi < lo) lo = hi;
-  if (lo < dead) lo = dead;
+  if (hi < lo) {lo = hi;}
+  if (lo < dead) {lo = dead;}
   const TypeT abs_value = std::abs(value);
   if (abs_value <= dead) {
     return static_cast<TypeT>(0);
