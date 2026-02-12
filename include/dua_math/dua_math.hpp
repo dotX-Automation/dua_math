@@ -68,33 +68,50 @@ template<typename TypeT, std::enable_if_t<std::is_integral<TypeT>::value, int> =
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] constexpr TypeT apply_deadzone(TypeT value, TypeT dead) noexcept
 {
+  dead = std::abs(dead);
   return (std::abs(value) <= dead) ? static_cast<TypeT>(0) : value;
 }
 
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
-[[nodiscard]] constexpr TypeT apply_clamp(TypeT value, TypeT max) noexcept
+[[nodiscard]] constexpr TypeT apply_saturation(TypeT value, TypeT hi) noexcept
 {
-  return (std::abs(value) > max) ? std::copysign(max, value) : value;
+  hi = std::abs(hi);
+  if (value > hi) {return hi;}
+  if (value < -hi) {return -hi;}
+  return value;
 }
 
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
-[[nodiscard]] constexpr TypeT apply_deadzone_clamp(TypeT value, TypeT dead, TypeT min, TypeT max)
+[[nodiscard]] constexpr TypeT apply_deadzone_saturation(
+  TypeT value, TypeT dead, TypeT lo, TypeT hi) noexcept
 {
-  const double abs_value = std::abs(value);
+  dead = std::abs(dead);
+  lo = std::abs(lo);
+  hi = std::abs(hi);
+  if (hi < lo) {lo = hi;}
+  if (lo < dead) {lo = dead;}
+  const TypeT abs_value = std::abs(value);
   if (abs_value <= dead) {
-    return 0.0;
-  } else if (abs_value <= min) {
-    return (value > 0.0) ? min : -min;
-  } else if (abs_value >= max) {
-    return (value > 0.0) ? max : -max;
+    return static_cast<TypeT>(0);
+  } else if (abs_value <= lo) {
+    return (value > static_cast<TypeT>(0)) ? lo : -lo;
+  } else if (abs_value >= hi) {
+    return (value > static_cast<TypeT>(0)) ? hi : -hi;
   } else {
     return value;
   }
 }
 
+template<typename TypeT, std::enable_if_t<std::is_arithmetic<TypeT>::value, int> = 0>
+[[nodiscard]] inline constexpr TypeT apply_clamp(TypeT value, TypeT lo, TypeT hi) noexcept
+{
+  return (value < lo) ? lo : (value > hi) ? hi : value;
+}
+
 template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, int> = 0>
 [[nodiscard]] constexpr TypeT apply_low_pass(TypeT current, TypeT previous, TypeT alpha) noexcept
 {
+  alpha = apply_clamp(alpha, static_cast<TypeT>(0), static_cast<TypeT>(1));
   return (alpha * current) + ((static_cast<TypeT>(1) - alpha) * previous);
 }
 
