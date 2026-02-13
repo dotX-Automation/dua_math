@@ -148,4 +148,25 @@ template<typename TypeT, std::enable_if_t<std::is_floating_point<TypeT>::value, 
   return is_normalized(q.x, q.y, q.z, q.w, eps);
 }
 
+// ---------- Matrix functions ----------
+
+[[nodiscard]] inline Eigen::Matrix3d skew(const Eigen::Vector3d & v)
+{
+  return (Eigen::Matrix3d() << 0, -v.z(), v.y(), v.z(), 0, -v.x(), -v.y(), v.x(), 0).finished();
+}
+
+[[nodiscard]] inline Eigen::Matrix<double, 6, 6,
+  Eigen::RowMajor> adjoint(const Eigen::Isometry3d & T)
+{
+  const Eigen::Matrix3d R = T.rotation();
+  const Eigen::Vector3d t = T.translation();
+  Eigen::Matrix<double, 6, 6, Eigen::RowMajor> adj =
+    Eigen::Matrix<double, 6, 6, Eigen::RowMajor>::Zero();
+  adj.block<3, 3>(0, 0) = R;
+  adj.block<3, 3>(0, 3) = skew(t) * R;
+  adj.block<3, 3>(3, 0).setZero();
+  adj.block<3, 3>(3, 3) = R;
+  return adj;
+}
+
 } // namespace dua_math
